@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import OptionsListComponent from "./components/optionsListComponent/OptionsListComponent";
+import TradingPairsList from "./components/TradingPairsList/TradingPairsList";
 import { message } from "antd";
 
 import "./App.css";
@@ -12,28 +12,28 @@ function App() {
   const [markPrices, setMarkPrices] = useState(allSymbols.current);
   const [isClosed, setIsClosed] = useState(false);
   const [loading, setLoading] = useState(true);
-  
-  
+
   useEffect(() => {
-    fetch("https://api.delta.exchange/v2/products",{
-      mode:"cors",
+    fetch("https://api.delta.exchange/v2/products", {
+      jsonp: "$jsonp",
+      dataType: "jsonp",
     })
-    .then((res) => {
-      if (res.ok) return res.json();
-      throw new Error("Network error");
-    })
-    .then((data) => {
-      setData(data);
-      setLoading(false);
-      for (let i = 0; i < data.result.length; i++) {
-        let symbol = data.result[i].symbol;
-        allSymbols.current = {
-          ...allSymbols.current,
-          [symbol]: 0,
-        };
-      }
-    })
-    .catch((err) => message.error(err.message));
+      .then((res) => {
+        if (res.ok) return res.json();
+        throw new Error("Network error");
+      })
+      .then((data) => {
+        setData(data);
+        setLoading(false);
+        for (let i = 0; i < data.result.length; i++) {
+          let symbol = data.result[i].symbol;
+          allSymbols.current = {
+            ...allSymbols.current,
+            [symbol]: 0,
+          };
+        }
+      })
+      .catch((err) => message.error(err.message));
   }, []);
 
   useEffect(() => {
@@ -76,7 +76,7 @@ function App() {
   }, [isClosed, loading]);
   return (
     <div className="App">
-      <OptionsListComponent
+      <TradingPairsList
         data={data}
         loading={loading}
         markPrices={markPrices}

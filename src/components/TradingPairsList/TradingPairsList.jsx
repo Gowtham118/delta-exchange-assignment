@@ -3,7 +3,8 @@ import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import deltaExchangeLogo from "../../assets/delta-exchange-logo.png";
 
-import styles from "./optionsListComponent.module.scss";
+import styles from "./tradingPairsList.module.scss";
+import TableRow from "../molecules/tradingPairsListTableRow/TableRow";
 
 const OptionsListComponent = ({ data, loading, markPrices }) => {
   return (
@@ -24,18 +25,7 @@ const OptionsListComponent = ({ data, loading, markPrices }) => {
           <tbody className={styles.tableBody}>
             {!loading && data.result ? (
               data.result.map((item) => (
-                <tr key={item.symbol}>
-                  <td>{item.symbol}</td>
-                  <td className={styles.descriptionCol}>{item.description}</td>
-                  <td>{item.underlying_asset.name}</td>
-                  <td>
-                    {Object.keys(markPrices).length ? (
-                      markPrices[item.symbol]
-                    ) : (
-                      <Spin indicator={<LoadingOutlined />} />
-                    )}
-                  </td>
-                </tr>
+                <TableRow item={item} markPrices={markPrices}/>
               ))
             ) : (
               <section className={styles.loadingIconContainer}>
