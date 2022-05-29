@@ -1,0 +1,58 @@
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    img {
+        width: 45rem;
+        height: 15rem;
+    }
+}
+
+.main {
+    height: 5rem;
+}
+
+table {
+    height: 5rem;
+    border-spacing: 1rem;
+}
+
+.tableBody {
+    overflow-y: auto;
+}
+
+th {
+    position: sticky;
+    top: 0;
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 3.2rem;
+    height: 5rem;
+    width: 40rem;
+    background: #2894f9;
+}
+
+td {
+    font-size: 1.6rem;
+    font-weight: 400;
+    line-height: 2rem;
+    text-align: center;
+    height: 3rem;
+}
+
+.descriptionCol {
+    max-width: 32rem;
+}
+.loadingIconContainer{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    &__icon{
+        width: 10rem;
+        height: 10rem;
+        font-size: 5rem;
+        color: #2894f9;
+    }
+}

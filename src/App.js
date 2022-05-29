@@ -1,23 +1,83 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useRef, useState } from "react";
+import OptionsListComponent from "./components/optionsListComponent/OptionsListComponent";
+import { message } from "antd";
+
+import "./App.css";
+
+const SOCKET_LINK = "wss://production-esocket.delta.exchange";
 
 function App() {
+  const [data, setData] = useState(null);
+  let allSymbols = useRef({});
+  const [markPrices, setMarkPrices] = useState(allSymbols.current);
+  const [isClosed, setIsClosed] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  
+  useEffect(() => {
+    fetch("https://api.delta.exchange/v2/products")
+    .then((res) => {
+      if (res.ok) return res.json();
+      throw new Error("Network error");
+    })
+    .then((data) => {
+      setData(data);
+      setLoading(false);
+      for (let i = 0; i < data.result.length; i++) {
+        let symbol = data.result[i].symbol;
+        allSymbols.current = {
+          ...allSymbols.current,
+          [symbol]: 0,
+        };
+      }
+    })
+    .catch((err) => message.error(err.message));
+  }, []);
+  console.log('allSymbols: ',allSymbols.current );
+
+  useEffect(() => {
+    const ws = new WebSocket(SOCKET_LINK);
+    const apiCall = {
+      type: "subscribe",
+      payload: {
+        channels: [
+          {
+            name: "v2/ticker",
+            symbols: Object.keys(allSymbols.current),
+          },
+        ],
+      },
+    };
+    if (isClosed) return;
+    ws.onopen = (event) => {
+      ws.send(JSON.stringify(apiCall));
+    };
+    ws.onmessage = function (event) {
+      const jsonData = JSON.parse(event.data);
+      setMarkPrices((p) => {
+        if ((jsonData.symbol === undefined) | "undefined") return p;
+        return {
+          ...p,
+          [jsonData.symbol]: jsonData.mark_price,
+        };
+      });
+
+      return;
+    };
+    return () => {
+      if (ws.readyState === 1) {
+        setIsClosed(true);
+        ws.close();
+      }
+    };
+  }, [isClosed]);
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <OptionsListComponent
+        data={data}
+        loading={loading}
+        markPrices={markPrices}
+      />
     </div>
   );
 }
