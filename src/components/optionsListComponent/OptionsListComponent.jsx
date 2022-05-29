@@ -6,7 +6,6 @@ import deltaExchangeLogo from "../../assets/delta-exchange-logo.png";
 import styles from "./optionsListComponent.module.scss";
 
 const OptionsListComponent = ({ data, loading, markPrices }) => {
-  console.log('markPricesChild: ', markPrices);
   return (
     <div>
       <header className={styles.header}>

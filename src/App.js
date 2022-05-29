@@ -15,7 +15,9 @@ function App() {
   
   
   useEffect(() => {
-    fetch("https://api.delta.exchange/v2/products")
+    fetch("https://api.delta.exchange/v2/products",{
+      mode:"cors",
+    })
     .then((res) => {
       if (res.ok) return res.json();
       throw new Error("Network error");
@@ -33,44 +35,45 @@ function App() {
     })
     .catch((err) => message.error(err.message));
   }, []);
-  console.log('allSymbols: ',allSymbols.current );
 
   useEffect(() => {
     const ws = new WebSocket(SOCKET_LINK);
-    const apiCall = {
-      type: "subscribe",
-      payload: {
-        channels: [
-          {
-            name: "v2/ticker",
-            symbols: Object.keys(allSymbols.current),
-          },
-        ],
-      },
-    };
-    if (isClosed) return;
-    ws.onopen = (event) => {
-      ws.send(JSON.stringify(apiCall));
-    };
-    ws.onmessage = function (event) {
-      const jsonData = JSON.parse(event.data);
-      setMarkPrices((p) => {
-        if ((jsonData.symbol === undefined) | "undefined") return p;
-        return {
-          ...p,
-          [jsonData.symbol]: jsonData.mark_price,
-        };
-      });
+    if (!loading) {
+      const apiCall = {
+        type: "subscribe",
+        payload: {
+          channels: [
+            {
+              name: "v2/ticker",
+              symbols: Object.keys(allSymbols.current),
+            },
+          ],
+        },
+      };
+      if (isClosed) return;
+      ws.onopen = (event) => {
+        ws.send(JSON.stringify(apiCall));
+      };
+      ws.onmessage = function (event) {
+        const jsonData = JSON.parse(event.data);
+        setMarkPrices((p) => {
+          if ((jsonData.symbol === undefined) | "undefined") return p;
+          return {
+            ...p,
+            [jsonData.symbol]: jsonData.mark_price,
+          };
+        });
 
-      return;
-    };
+        return;
+      };
+    }
     return () => {
       if (ws.readyState === 1) {
         setIsClosed(true);
         ws.close();
       }
     };
-  }, [isClosed]);
+  }, [isClosed, loading]);
   return (
     <div className="App">
       <OptionsListComponent
